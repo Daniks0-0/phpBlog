@@ -6,5 +6,30 @@ if(isUserAuthorized()){
     die;
 
 }
+$name = $_POST['login'];
+$originalPassword = $_POST['password'];
+$password = getPasswordHash($originalPassword);
 
-var_dump($_POST);
+
+global $_DB_CONNECTION;
+
+try {
+    $query = "INSERT INTO users (`name`, `password`, `email`) VALUES (:name, :password, :email)";
+    $stmt = $_DB_CONNECTION->prepare($query);
+
+    $result = $stmt->execute([
+        'name' => $name,
+        'password' => $password,
+        'email' => 'default@mail.ru'
+    ]);
+
+    if ($result) {
+        echo "Запись успешно добавлена";
+    } else {
+        echo "Ошибка добавления записи: " . implode(", ", $stmt->errorInfo());
+    }
+} catch (PDOException $e) {
+    echo "Ошибка: " . $e->getMessage();
+}
+
+
